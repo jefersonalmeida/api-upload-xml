@@ -1,24 +1,19 @@
 package com.jefersonalmeida.entity;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.jefersonalmeida.api.model.Acronym;
+import com.jefersonalmeida.api.model.PriceType;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
-import java.util.UUID;
+import java.util.Set;
 
 @Table(schema = "public", name = "agents")
 @Entity(name = "Agent")
 public class Agent {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    private UUID id;
-
     @Column(name = "code", nullable = false)
     private Integer code;
     @Column(name = "date_at", nullable = false)
@@ -26,34 +21,27 @@ public class Agent {
 
     @OneToMany(
             mappedBy = "agent",
-            targetEntity = Region.class,
+            targetEntity = Price.class,
             fetch = FetchType.EAGER,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+            cascade = CascadeType.ALL
     )
-    private List<Region> regions;
+    private Set<Price> prices = new HashSet<>();
 
     public Agent() {
     }
 
+    public Agent(final Integer code) {
+        this.code = code;
+    }
+
     public Agent(
-            final UUID id,
             final Integer code,
             final Instant dateAt,
-            final List<Region> regions
+            final Set<Price> prices
     ) {
-        this.id = id;
         this.code = code;
         this.dateAt = dateAt;
-        this.regions = regions;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
+        this.prices = prices;
     }
 
     public Integer getCode() {
@@ -72,12 +60,16 @@ public class Agent {
         this.dateAt = dateAt;
     }
 
-    public List<Region> getRegions() {
-        return regions;
+    public Set<Price> getPrices() {
+        return prices;
     }
 
-    public void setRegions(List<Region> regions) {
-        this.regions = regions;
+    public void setPrices(Set<Price> prices) {
+        this.prices = prices;
+    }
+
+    public void addPrice(final Acronym acronym, final PriceType type, final BigDecimal value, final Instant dateAt) {
+        this.prices.add(new Price(this, acronym, type, value, dateAt));
     }
 
     @Override
@@ -89,11 +81,11 @@ public class Agent {
             return false;
         }
         final Agent agent = (Agent) o;
-        return Objects.equals(id, agent.id) && Objects.equals(code, agent.code) && Objects.equals(dateAt, agent.dateAt);
+        return Objects.equals(code, agent.code);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, code, dateAt);
+        return Objects.hash(code);
     }
 }

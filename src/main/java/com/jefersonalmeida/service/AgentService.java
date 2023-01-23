@@ -3,7 +3,6 @@ package com.jefersonalmeida.service;
 import com.jefersonalmeida.api.model.AgentRequest;
 import com.jefersonalmeida.api.model.PriceType;
 import com.jefersonalmeida.entity.Agent;
-import com.jefersonalmeida.entity.Region;
 import com.jefersonalmeida.repository.AgentRepository;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +19,7 @@ public class AgentService {
         this.agentRepository = agentRepository;
     }
 
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRED)
     public List<Integer> create(final AgentRequest[] requests) {
 
         // Simulate delay
@@ -33,25 +32,16 @@ public class AgentService {
         final var listAgents = new ArrayList<Agent>();
 
         for (final AgentRequest request : requests) {
-
-            final var listRegions = new ArrayList<Region>();
-            final var agent = new Agent();
+            final var agent = new Agent(request.code());
+            agent.setDateAt(request.date());
 
             request.regions().forEach(model -> {
-                final var region = new Region(agent, model.acronym());
-
-                model.average().forEach(average -> region.addPrice(PriceType.AVERAGE, average));
-                model.generation().forEach(average -> region.addPrice(PriceType.GENERATION, average));
-                model.purchase().forEach(average -> region.addPrice(PriceType.PURCHASE, average));
-
-                listRegions.add(region);
+                model.average().forEach(it -> agent.addPrice(model.acronym(), PriceType.AVERAGE, it, request.date()));
+                model.generation().forEach(it -> agent.addPrice(model.acronym(), PriceType.GENERATION, it, request.date()));
+                model.purchase().forEach(it -> agent.addPrice(model.acronym(), PriceType.PURCHASE, it, request.date()));
             });
-
-            agent.setCode(request.code());
-            agent.setDateAt(request.date());
-            agent.setRegions(listRegions);
-
             listAgents.add(agent);
+//            this.agentRepository.save(agent);
         }
 
         this.agentRepository.saveAll(listAgents);

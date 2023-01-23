@@ -1,10 +1,12 @@
 package com.jefersonalmeida.entity;
 
+import com.jefersonalmeida.api.model.Acronym;
 import com.jefersonalmeida.api.model.PriceType;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,9 +21,13 @@ public class Price {
     )
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Region.class)
-    @JoinColumn(name = "region_id")
-    private Region region;
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Agent.class)
+    @JoinColumn(name = "agent_id")
+    private Agent agent;
+
+    @Column(name = "acronym", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Acronym acronym;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -29,6 +35,9 @@ public class Price {
 
     @Column(name = "value", nullable = false)
     private BigDecimal value;
+
+    @Column(name = "date_at", nullable = false)
+    private Instant dateAt;
 
     public Price() {
     }
@@ -38,10 +47,18 @@ public class Price {
         this.value = value;
     }
 
-    public Price(final Region region, final PriceType type, final BigDecimal value) {
-        this.region = region;
+    public Price(
+            final Agent agent,
+            final Acronym acronym,
+            final PriceType type,
+            final BigDecimal value,
+            final Instant dateAt
+    ) {
+        this.agent = agent;
+        this.acronym = acronym;
         this.type = type;
         this.value = value;
+        this.dateAt = dateAt;
     }
 
     public UUID getId() {
@@ -52,12 +69,20 @@ public class Price {
         this.id = id;
     }
 
-    public Region getRegion() {
-        return region;
+    public Agent getAgent() {
+        return agent;
     }
 
-    public void setRegion(Region region) {
-        this.region = region;
+    public void setAgent(Agent agent) {
+        this.agent = agent;
+    }
+
+    public Acronym getAcronym() {
+        return acronym;
+    }
+
+    public void setAcronym(Acronym acronym) {
+        this.acronym = acronym;
     }
 
     public PriceType getType() {
@@ -76,6 +101,14 @@ public class Price {
         this.value = value;
     }
 
+    public Instant getDateAt() {
+        return dateAt;
+    }
+
+    public void setDateAt(Instant dateAt) {
+        this.dateAt = dateAt;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -85,11 +118,11 @@ public class Price {
             return false;
         }
         final Price price = (Price) o;
-        return Objects.equals(id, price.id) && Objects.equals(region, price.region) && type == price.type && Objects.equals(value, price.value);
+        return Objects.equals(agent, price.agent) && acronym == price.acronym && type == price.type && Objects.equals(value, price.value) && Objects.equals(dateAt, price.dateAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, region, type, value);
+        return Objects.hash(agent, acronym, type, value, dateAt);
     }
 }

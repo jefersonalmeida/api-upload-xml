@@ -48,8 +48,7 @@ processamento deles.
 * Aplicar testes
 * Criar recurso para listagem dos dados por região
 * Implementar recursos de segurança
-*
-  * Refatorar utilizando padrão DDD com arquitetura limpa
+* Refatorar utilizando padrão DDD com arquitetura limpa
 
 ---
 
