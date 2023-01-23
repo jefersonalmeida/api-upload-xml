@@ -1,0 +1,42 @@
+logging:
+  level:
+    root: info
+    com.jefersonalmeida: debug
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+  undertow:
+    threads:
+      worker: 64
+      io: 4
+
+spring:
+  datasource:
+    url: jdbc:postgresql://host.docker.internal:15432/api_upload_xml?binaryTransfer=true&reWriteBatchedInserts=true
+    username: postgres
+    password: postgres
+    hikari:
+      auto-commit: false
+      connection-timeout: 250
+      max-lifetime: 600000
+      maximum-pool-size: 10 # M�ximo 20
+      pool-name: main
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      "[hibernate.dialect]": org.hibernate.dialect.PostgreSQL10Dialect
+      "[hibernate.generate_statistics]": false
+      "[hibernate.connection.provider_disables_autocommit]": true
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 10GB
